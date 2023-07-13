@@ -253,7 +253,6 @@ export default class Preview extends React.Component {
   }
 
   getElement(item, index) {
-    console.log(item);
     if (item.custom) {
       if (!item.component || typeof item.component !== "function") {
         // eslint-disable-next-line no-param-reassign

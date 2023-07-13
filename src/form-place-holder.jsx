@@ -29,8 +29,8 @@ class PlaceHolder extends React.Component {
         className={placeHolderClass}
         style={{ display: "flex", flexDirection: "column" }}
       >
-        <div>{placeHolder}</div>
-        <div>{placeHolderSubtext}</div>
+        <div className="text">{placeHolder}</div>
+        <div className="subtext">{placeHolderSubtext}</div>
       </div>
     );
   }
@@ -43,7 +43,7 @@ PlaceHolder.propTypes = {
 };
 
 PlaceHolder.defaultProps = {
-  text: "Let's get started",
-  subtext: "Drag fields from left panel and drop here to your form",
+  text: "Click or drag on the fields",
+  subtext: "Use left panel to build and add fields in the form.",
   show: false,
 };

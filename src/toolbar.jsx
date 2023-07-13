@@ -387,7 +387,7 @@ class Toolbar extends React.Component {
   create(item) {
     const { intl } = this.props;
 
-    const elementOptions = {
+    let elementOptions = {
       id: ID.uuid(),
       element: item.element || item.key,
       text: item.name,
@@ -396,6 +396,19 @@ class Toolbar extends React.Component {
       required: false,
       showDescription: item.showDescription,
     };
+
+    if (item.element === "NumberInput" || item.key === "NumberInput") {
+      elementOptions = {
+        ...elementOptions,
+        enforce_decimal: false,
+        lower_limit: "",
+        upper_limit: "",
+        field_width: "",
+        measurement_unit: "",
+        help_text: "",
+        validation_messages: "",
+      };
+    }
 
     if (this.props.showDescription === true && !item.static) {
       elementOptions.showDescription = true;

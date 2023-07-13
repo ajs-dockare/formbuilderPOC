@@ -1,15 +1,15 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { findDOMNode } from 'react-dom';
-import { DragSource, DropTarget } from 'react-dnd';
-import ItemTypes from './ItemTypes';
+import React, { Component } from "react";
+import PropTypes from "prop-types";
+import { findDOMNode } from "react-dom";
+import { DragSource, DropTarget } from "react-dnd";
+import ItemTypes from "./ItemTypes";
 
 const style = {
-  border: '1px dashed gray',
-  padding: '0.5rem 1rem',
-  marginBottom: '.5rem',
-  backgroundColor: 'white',
-  cursor: 'pointer',
+  border: "1px solid #6F8DD2",
+  background: "#FFF",
+  marginBottom: ".5rem",
+  backgroundColor: "white",
+  cursor: "pointer",
 };
 
 const cardSource = {
@@ -23,11 +23,7 @@ const cardSource = {
 };
 
 const cardTarget = {
-  drop(
-    props,
-    monitor,
-    component,
-  ) {
+  drop(props, monitor, component) {
     if (!component) {
       return;
     }
@@ -36,11 +32,14 @@ const cardTarget = {
     const hoverIndex = props.index;
     const dragIndex = item.index;
 
-    if ((props.data && props.data.isContainer) || item.itemType === ItemTypes.CARD) {
+    if (
+      (props.data && props.data.isContainer) ||
+      item.itemType === ItemTypes.CARD
+    ) {
       // console.log('cardTarget -  Drop', item.itemType);
       return;
     }
-    if (item.data && typeof item.setAsChild === 'function') {
+    if (item.data && typeof item.setAsChild === "function") {
       // console.log('BOX', item);
       if (dragIndex === -1) {
         props.insertCard(item, hoverIndex, item.id);
@@ -125,7 +124,7 @@ export default function (ComposedComponent) {
       // text: PropTypes.string.isRequired,
       moveCard: PropTypes.func.isRequired,
       seq: PropTypes.number,
-    }
+    };
 
     static defaultProps = {
       seq: -1,
@@ -141,14 +140,25 @@ export default function (ComposedComponent) {
       const opacity = isDragging ? 0 : 1;
 
       return connectDragPreview(
-        connectDropTarget(<div><ComposedComponent {...this.props} style={{ ...style, opacity }}></ComposedComponent></div>),
+        connectDropTarget(
+          <div>
+            <ComposedComponent
+              {...this.props}
+              style={{ ...style, opacity }}
+            ></ComposedComponent>
+          </div>
+        )
       );
     }
   }
 
-  const x = DropTarget([ItemTypes.CARD, ItemTypes.BOX], cardTarget, connect => ({
-    connectDropTarget: connect.dropTarget(),
-  }))(Card);
+  const x = DropTarget(
+    [ItemTypes.CARD, ItemTypes.BOX],
+    cardTarget,
+    (connect) => ({
+      connectDropTarget: connect.dropTarget(),
+    })
+  )(Card);
   return DragSource(ItemTypes.CARD, cardSource, (connect, monitor) => ({
     connectDragSource: connect.dragSource(),
     connectDragPreview: connect.dragPreview(),

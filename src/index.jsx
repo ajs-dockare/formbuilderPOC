@@ -98,14 +98,14 @@ class ReactFormBuilder extends React.Component {
                     download_path=""
                     back_action="/"
                     back_name="Back"
-                    // answer_data={answers}
+                    answer_data={answers}
                     action_name="Save"
                     form_action="/api/form"
                     form_method="POST"
                     // skip_validations={true}
                     // onSubmit={this._onSubmit}
                     // variables={this.props.variables}
-                    data={this.props.data}
+                    // data={this.props.data}
                     locale="en"
                   />
                 </div> */}

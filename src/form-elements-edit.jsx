@@ -15,6 +15,7 @@ import ID from "./UUID";
 import IntlMessages from "./language-provider/IntlMessages";
 import {
   Checkbox,
+  Divider,
   FormControlLabel,
   FormGroup,
   Switch,
@@ -36,7 +37,7 @@ export default class FormElementsEdit extends React.Component {
       element: this.props.element,
       data: this.props.data,
       dirty: false,
-      currentEditing: "label",
+      currentEditingIndex: 0,
     };
   }
 
@@ -118,8 +119,29 @@ export default class FormElementsEdit extends React.Component {
     }
   }
 
+  updatedSelectFilled = (curr, currVal, next, nextVal) => {
+    const this_element = this.state.element;
+    this_element.sectionFilled[curr] = currVal;
+    this_element.sectionFilled[next] = nextVal;
+
+    this.setState(
+      {
+        element: this_element,
+        dirty: true,
+      },
+      () => {
+        this.updateElement();
+      }
+    );
+  };
+
   selectSection(label) {
-    this.setState({ ...this.state, currentEditing: label });
+    this.setState({
+      ...this.state,
+      currentEditingIndex: Object.keys(
+        this.props.element.sectionFilled
+      ).indexOf(label),
+    });
   }
 
   render() {
@@ -214,10 +236,6 @@ export default class FormElementsEdit extends React.Component {
       { name: "Export Field", id: "export_field" },
     ];
 
-    const NumberValidationFields = [{ id: "label" }];
-
-    console.log(this.props.element);
-
     return (
       <div>
         <div className="edit-modal-header">
@@ -286,23 +304,71 @@ export default class FormElementsEdit extends React.Component {
             {NumberValidations.map((el, indx) => (
               <div
                 key={indx}
-                style={{ cursor: "pointer" }}
-                onClick={() => {
-                  if (this.state.currentEditing !== el.id)
-                    this.selectSection(el.id);
-                  else this.selectSection("");
+                style={{
+                  marginTop: 5,
+                  gap: 10,
+                  borderRadius: 4,
+                  padding: "8px 12px",
+                  border:
+                    this.props.element.sectionFilled[el.id] === 1
+                      ? "1px solid #6F8DD2"
+                      : "",
+                  backgroundColor:
+                    this.props.element.sectionFilled[el.id] === 1
+                      ? "#F7F9FE"
+                      : "",
                 }}
-                className="d-flex flex-wrap align-items-center"
+                className="d-flex flex-wrap align-items-center justify-content-between"
               >
-                <Checkbox
-                  checked={this.state.currentEditing === el.id}
-                  size="small"
-                />
                 <div style={{ fontSize: 10 }}>{el.name}</div>
+                {(this.props.element.sectionFilled[el.id] === 0 ||
+                  this.props.element.sectionFilled[el.id] === 1) && (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <path
+                      d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM11.0026 16L18.0737 8.92893L16.6595 7.51472L11.0026 13.1716L8.17421 10.3431L6.75999 11.7574L11.0026 16Z"
+                      fill="#DDDDDD"
+                    />
+                  </svg>
+                )}
+                {this.props.element.sectionFilled[el.id] === 3 && (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <path
+                      d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM11.0026 16L18.0737 8.92893L16.6595 7.51472L11.0026 13.1716L8.17421 10.3431L6.75999 11.7574L11.0026 16Z"
+                      fill="#507E5A"
+                    />
+                  </svg>
+                )}
+
+                {this.props.element.sectionFilled[el.id] === 2 && (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <path
+                      d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM9 9V15H15V9H9Z"
+                      fill="#FACE31"
+                    />
+                  </svg>
+                )}
               </div>
             ))}
           </div>
-          <div>
+          <div style={{ width: "60%" }}>
             {this.props.element.hasOwnProperty("content") && (
               <div className="form-group">
                 <label className="control-label">
@@ -360,7 +426,7 @@ export default class FormElementsEdit extends React.Component {
                 />
               </div>
             )}
-            {this.state.currentEditing === "label" &&
+            {this.props.element.sectionFilled["label"] === 1 &&
               this.props.element.hasOwnProperty("label") && (
                 <div className="form-group">
                   <label
@@ -384,6 +450,7 @@ export default class FormElementsEdit extends React.Component {
                     This name will be used in export. Name must be unique while
                     exporting.
                   </div>
+                  <Divider style={{ marginTop: 28, marginBottom: 28 }} />
                   <input
                     id="label"
                     type="text"
@@ -620,29 +687,54 @@ export default class FormElementsEdit extends React.Component {
               </div>
             )}
 
-            {this.state.currentEditing === "enforce_decimal" &&
+            {this.props.element.sectionFilled["enforce_decimal"] === 1 &&
               this.props.element.hasOwnProperty("enforce_decimal") && (
-                <div className="custom-control custom-checkbox">
-                  <input
-                    id="enforce_decimal"
-                    className="custom-control-input shadow-none"
-                    type="checkbox"
-                    checked={this.props.element.enforce_decimal}
-                    onChange={this.editElementProp.bind(
-                      this,
-                      "enforce_decimal",
-                      "checked"
-                    )}
-                  />
+                <div className="form-group">
                   <label
-                    className="custom-control-label"
-                    htmlFor="enforce_decimal"
+                    style={{
+                      fontSize: 16,
+                      fontWeight: 500,
+                      color: "#2A2C30",
+                    }}
                   >
-                    <IntlMessages id="Enforce Decimal" />
+                    <IntlMessages id="Enforce decimals" />
                   </label>
+
+                  <div
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 400,
+                      color: "#46494F",
+                      marginBottom: 10,
+                    }}
+                  >
+                    Define if this field will allow user to enter decimals.
+                  </div>
+
+                  <Divider style={{ marginTop: 28, marginBottom: 28 }} />
+
+                  <FormGroup>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          id="enforce_decimal"
+                          type="checkbox"
+                          checked={this.props.element.enforce_decimal}
+                          onChange={this.editElementProp.bind(
+                            this,
+                            "enforce_decimal",
+                            "checked"
+                          )}
+                          color="primary"
+                          className="shadow-none"
+                        />
+                      }
+                      label="Enforce decimal"
+                    />
+                  </FormGroup>
                 </div>
               )}
-            {this.state.currentEditing === "help_text" &&
+            {this.props.element.sectionFilled["help_text"] === 1 &&
               this.props.element.hasOwnProperty("help_text") && (
                 <div className="form-group" style={{ marginTop: 10 }}>
                   <label
@@ -668,6 +760,7 @@ export default class FormElementsEdit extends React.Component {
                     Here you can enter some additional information about the
                     field, that can help user to fill in the field.
                   </div>
+                  <Divider style={{ marginTop: 28, marginBottom: 28 }} />
                   <div
                     style={{
                       fontSize: 12,
@@ -695,7 +788,7 @@ export default class FormElementsEdit extends React.Component {
             </p> */}
                 </div>
               )}
-            {this.state.currentEditing === "field_width" &&
+            {this.props.element.sectionFilled["field_width"] === 1 &&
               this.props.element.hasOwnProperty("field_width") && (
                 <div className="form-group" style={{ marginTop: 10 }}>
                   <label
@@ -720,6 +813,7 @@ export default class FormElementsEdit extends React.Component {
                   >
                     This value defines the width of the field's input box.
                   </div>
+                  <Divider style={{ marginTop: 28, marginBottom: 28 }} />
                   <input
                     id="field_width"
                     type="number"
@@ -738,7 +832,7 @@ export default class FormElementsEdit extends React.Component {
             </p> */}
                 </div>
               )}
-            {this.state.currentEditing === "validation_messages" &&
+            {this.props.element.sectionFilled["validation_messages"] === 1 &&
               this.props.element.hasOwnProperty("validation_messages") && (
                 <div className="form-group" style={{ marginTop: 10 }}>
                   <label
@@ -752,6 +846,8 @@ export default class FormElementsEdit extends React.Component {
                   >
                     <IntlMessages id="Validation messages" />:
                   </label>
+
+                  <Divider style={{ marginTop: 28, marginBottom: 28 }} />
                   <input
                     id="validation_message"
                     type="text"
@@ -769,7 +865,7 @@ export default class FormElementsEdit extends React.Component {
             </p> */}
                 </div>
               )}
-            {this.state.currentEditing === "measurement_unit" &&
+            {this.props.element.sectionFilled["measurement_unit"] === 1 &&
               this.props.element.hasOwnProperty("measurement_unit") && (
                 <div className="form-group" style={{ marginTop: 10 }}>
                   <label
@@ -797,8 +893,27 @@ export default class FormElementsEdit extends React.Component {
                   />
                 </div>
               )}
-            {this.state.currentEditing === "limit" && (
+            {this.props.element.sectionFilled["limit"] === 1 && (
               <>
+                {/* <FormGroup>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        id="enforce_decimal"
+                        type="checkbox"
+                        checked={this.props.element.enforce_decimal}
+                        onChange={this.editElementProp.bind(
+                          this,
+                          "enforce_decimal",
+                          "checked"
+                        )}
+                        color="primary"
+                        className="shadow-none"
+                      />
+                    }
+                    label="Enforce decimal"
+                  />
+                </FormGroup> */}
                 {this.props.element.hasOwnProperty("lower_limit") && (
                   <div className="form-group" style={{ marginTop: 10 }}>
                     <label
@@ -929,7 +1044,7 @@ export default class FormElementsEdit extends React.Component {
               <div />
             )}
 
-            {this.state.currentEditing === "dependencies" && (
+            {this.props.element.sectionFilled["dependencies"] === 1 && (
               <>
                 {canHavePageBreakBefore && (
                   <div className="form-group">
@@ -1212,39 +1327,285 @@ export default class FormElementsEdit extends React.Component {
                 key={this.props.element.options.length}
               />
             )}
-            {/* {!!this.state.currentEditing && (
+
+            {this.state.currentEditingIndex === 0 && (
               <div
                 className="d-flex justify-content-end"
+                style={{ marginTop: 10 }}
+              >
+                <div className="d-flex" style={{ gap: 20 }}>
+                  <button
+                    style={{
+                      display: "flex",
+                      padding: "8px 10px",
+                      flexDirection: "column",
+                      borderRadius: 6,
+                      border: "1px solid #BCBCBC",
+                      background: "#FFF",
+                    }}
+                    onClick={() => {
+                      this.updatedSelectFilled(
+                        Object.keys(this.props.element.sectionFilled)[
+                          this.state.currentEditingIndex
+                        ],
+                        2,
+                        Object.keys(this.props.element.sectionFilled)[
+                          this.state.currentEditingIndex + 1
+                        ],
+                        1
+                      );
+                      this.selectSection(
+                        Object.keys(this.props.element.sectionFilled)[
+                          this.state.currentEditingIndex + 1
+                        ]
+                      );
+                    }}
+                  >
+                    Skip
+                  </button>
+                  <button
+                    style={{
+                      padding: "8px 10px",
+                      gap: 10,
+                      borderRadius: 6,
+                      color: "#FFF",
+                      backgroundColor: "#0D487B",
+                      border: "none",
+                    }}
+                    className="d-flex"
+                    onClick={() => {
+                      this.updatedSelectFilled(
+                        Object.keys(this.props.element.sectionFilled)[
+                          this.state.currentEditingIndex
+                        ],
+                        3,
+                        Object.keys(this.props.element.sectionFilled)[
+                          this.state.currentEditingIndex + 1
+                        ],
+                        1
+                      );
+                      this.selectSection(
+                        Object.keys(this.props.element.sectionFilled)[
+                          this.state.currentEditingIndex + 1
+                        ]
+                      );
+                    }}
+                  >
+                    <div>Save & Next</div>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="17"
+                      viewBox="0 0 16 17"
+                      fill="none"
+                    >
+                      <path
+                        d="M10.7811 7.83327L7.20509 4.25726L8.14789 3.31445L13.3334 8.49993L8.14789 13.6853L7.20509 12.7425L10.7811 9.1666H2.66669V7.83327H10.7811Z"
+                        fill="white"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            )}
+            {this.state.currentEditingIndex < 9 &&
+              this.state.currentEditingIndex > 0 && (
+                <div
+                  className="d-flex justify-content-between"
+                  style={{ marginTop: 10 }}
+                >
+                  <div>
+                    <button
+                      style={{
+                        padding: "8px 10px",
+                        gap: 10,
+                        borderRadius: 6,
+                        border: "1px solid #BCBCBC",
+                        background: "#FFF",
+                      }}
+                      className="d-flex"
+                      onClick={() => {
+                        this.updatedSelectFilled(
+                          Object.keys(this.props.element.sectionFilled)[
+                            this.state.currentEditingIndex
+                          ],
+                          2,
+                          Object.keys(this.props.element.sectionFilled)[
+                            this.state.currentEditingIndex + 1
+                          ],
+                          1
+                        );
+                        this.selectSection(
+                          Object.keys(this.props.element.sectionFilled)[
+                            this.state.currentEditingIndex + 1
+                          ]
+                        );
+                      }}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="17"
+                        viewBox="0 0 16 17"
+                        fill="none"
+                      >
+                        <path
+                          d="M5.21891 9.16673L8.79491 12.7427L7.85211 13.6855L2.66665 8.50007L7.85211 3.31467L8.79491 4.25747L5.21891 7.8334L13.3333 7.8334V9.16673H5.21891Z"
+                          fill="#2A2C30"
+                        />
+                      </svg>
+                      <div>Back</div>
+                    </button>
+                  </div>
+                  <div className="d-flex" style={{ gap: 20 }}>
+                    <button
+                      style={{
+                        display: "flex",
+                        padding: "8px 10px",
+                        flexDirection: "column",
+                        borderRadius: 6,
+                        border: "1px solid #BCBCBC",
+                        background: "#FFF",
+                      }}
+                      onClick={() => {
+                        this.updatedSelectFilled(
+                          Object.keys(this.props.element.sectionFilled)[
+                            this.state.currentEditingIndex
+                          ],
+                          2,
+                          Object.keys(this.props.element.sectionFilled)[
+                            this.state.currentEditingIndex + 1
+                          ],
+                          1
+                        );
+                        this.selectSection(
+                          Object.keys(this.props.element.sectionFilled)[
+                            this.state.currentEditingIndex + 1
+                          ]
+                        );
+                      }}
+                    >
+                      Skip
+                    </button>
+                    <button
+                      style={{
+                        padding: "8px 10px",
+                        gap: 10,
+                        borderRadius: 6,
+                        color: "#FFF",
+                        backgroundColor: "#0D487B",
+                        border: "none",
+                      }}
+                      className="d-flex"
+                      onClick={() => {
+                        this.updatedSelectFilled(
+                          Object.keys(this.props.element.sectionFilled)[
+                            this.state.currentEditingIndex
+                          ],
+                          3,
+                          Object.keys(this.props.element.sectionFilled)[
+                            this.state.currentEditingIndex + 1
+                          ],
+                          1
+                        );
+                        this.selectSection(
+                          Object.keys(this.props.element.sectionFilled)[
+                            this.state.currentEditingIndex + 1
+                          ]
+                        );
+                      }}
+                    >
+                      <div>Save & Next</div>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="17"
+                        viewBox="0 0 16 17"
+                        fill="none"
+                      >
+                        <path
+                          d="M10.7811 7.83327L7.20509 4.25726L8.14789 3.31445L13.3334 8.49993L8.14789 13.6853L7.20509 12.7425L10.7811 9.1666H2.66669V7.83327H10.7811Z"
+                          fill="white"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+            {this.state.currentEditingIndex === 9 && (
+              <div
+                className="d-flex justify-content-between"
                 style={{ gap: 20, marginTop: 10 }}
               >
                 <button
                   style={{
-                    display: "flex",
                     padding: "8px 10px",
-                    flexDirection: "column",
                     gap: 10,
                     borderRadius: 6,
                     border: "1px solid #BCBCBC",
                     background: "#FFF",
                   }}
+                  className="d-flex"
+                  onClick={() => {
+                    this.updatedSelectFilled(
+                      Object.keys(this.props.element.sectionFilled)[
+                        this.state.currentEditingIndex
+                      ],
+                      2,
+                      Object.keys(this.props.element.sectionFilled)[
+                        this.state.currentEditingIndex + 1
+                      ],
+                      1
+                    );
+                    this.selectSection(
+                      Object.keys(this.props.element.sectionFilled)[
+                        this.state.currentEditingIndex + 1
+                      ]
+                    );
+                  }}
                 >
-                  Skip
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="17"
+                    viewBox="0 0 16 17"
+                    fill="none"
+                  >
+                    <path
+                      d="M5.21891 9.16673L8.79491 12.7427L7.85211 13.6855L2.66665 8.50007L7.85211 3.31467L8.79491 4.25747L5.21891 7.8334L13.3333 7.8334V9.16673H5.21891Z"
+                      fill="#2A2C30"
+                    />
+                  </svg>
+                  <div>Back</div>
                 </button>
                 <button
                   style={{
-                    display: "flex",
                     padding: "8px 10px",
-                    flexDirection: "column",
                     gap: 10,
                     borderRadius: 6,
-                    border: "1px solid #BCBCBC",
-                    background: "#FFF",
+                    color: "#FFF",
+                    backgroundColor: "#0D487B",
+                    border: "none",
                   }}
+                  className="d-flex"
                 >
-                  Save & Next
+                  <div>Save</div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="17"
+                    viewBox="0 0 16 17"
+                    fill="none"
+                  >
+                    <path
+                      d="M10.7811 7.83327L7.20509 4.25726L8.14789 3.31445L13.3334 8.49993L8.14789 13.6853L7.20509 12.7425L10.7811 9.1666H2.66669V7.83327H10.7811Z"
+                      fill="white"
+                    />
+                  </svg>
                 </button>
               </div>
-            )} */}
+            )}
           </div>
         </div>
       </div>

@@ -407,6 +407,18 @@ class Toolbar extends React.Component {
         measurement_unit: "",
         help_text: "",
         validation_messages: "",
+        sectionFilled: {
+          label: 1,
+          enforce_decimal: 0,
+          limit: 0,
+          field_width: 0,
+          measurement_unit: 0,
+          help_text: 0,
+          validation_messages: 0,
+          dependencies: 0,
+          annotations: 0,
+          export_field: 0,
+        },
       };
     }
 

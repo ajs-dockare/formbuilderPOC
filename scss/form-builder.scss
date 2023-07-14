@@ -76,7 +76,8 @@
       border-left: 0;
       box-shadow: none;
       top: 0;
-      left: -1000px;
+      // left: -1000px;
+      right: -1000px;
       height: 100%;
       // width: 0;
       width: 715px;
@@ -230,7 +231,8 @@
         border-right: 1px solid #ddd;
         box-shadow: 0 0 2px 1px rgba(0,0,0,0.1);
         // width: 80%;
-        left: 0;
+        // left: 0;
+        right: 0px;
         transition: .5s;
       }
     }

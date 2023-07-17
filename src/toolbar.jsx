@@ -57,6 +57,7 @@ class Toolbar extends React.Component {
     const items = buildItems(props.items, this._defaultItems(intl));
     this.state = {
       items,
+      selectedFieldList: "basic",
     };
     this.create = this.create.bind(this);
   }
@@ -147,54 +148,33 @@ class Toolbar extends React.Component {
   _defaultItems(intl) {
     return [
       {
-        key: "Header",
-        name: intl.formatMessage({ id: "header-text" }),
-        icon: "fas fa-heading",
-        static: true,
-        content: intl.formatMessage({ id: "place-holder-text" }),
-      },
-      {
-        key: "Label",
-        name: intl.formatMessage({ id: "label" }),
-        static: true,
+        key: "TextInput",
+        canHaveAnswer: true,
+        name: "Text",
+        label: intl.formatMessage({ id: "place-holder-label" }),
         icon: "fas fa-font",
-        content: intl.formatMessage({ id: "place-holder-text" }),
+        field_name: "text_input_",
       },
       {
         key: "Paragraph",
-        name: intl.formatMessage({ id: "paragraph" }),
+        name: "Paragraph",
         static: true,
         icon: "fas fa-paragraph",
         content: intl.formatMessage({ id: "place-holder-text" }),
       },
       {
-        key: "LineBreak",
-        name: intl.formatMessage({ id: "line-break" }),
-        static: true,
-        icon: "fas fa-arrows-alt-h",
-      },
-      {
         key: "Dropdown",
         canHaveAnswer: true,
-        name: intl.formatMessage({ id: "dropdown" }),
+        name: "Dropdown",
         icon: "far fa-caret-square-down",
         label: intl.formatMessage({ id: "place-holder-label" }),
         field_name: "dropdown_",
         options: [],
       },
       {
-        key: "Tags",
-        canHaveAnswer: true,
-        name: intl.formatMessage({ id: "tags" }),
-        icon: "fas fa-tags",
-        label: intl.formatMessage({ id: "place-holder-label" }),
-        field_name: "tags_",
-        options: [],
-      },
-      {
         key: "Checkboxes",
         canHaveAnswer: true,
-        name: intl.formatMessage({ id: "checkboxes" }),
+        name: "Checkbox",
         icon: "far fa-check-square",
         label: intl.formatMessage({ id: "place-holder-label" }),
         field_name: "checkboxes_",
@@ -203,160 +183,15 @@ class Toolbar extends React.Component {
       {
         key: "RadioButtons",
         canHaveAnswer: true,
-        name: intl.formatMessage({ id: "multiple-choice" }),
+        name: "Radio Button",
         icon: "far fa-dot-circle",
         label: intl.formatMessage({ id: "place-holder-label" }),
         field_name: "radiobuttons_",
         options: [],
       },
       {
-        key: "TextInput",
-        canHaveAnswer: true,
-        name: intl.formatMessage({ id: "text-input" }),
-        label: intl.formatMessage({ id: "place-holder-label" }),
-        icon: "fas fa-font",
-        field_name: "text_input_",
-      },
-      {
-        key: "EmailInput",
-        canHaveAnswer: true,
-        name: intl.formatMessage({ id: "email-input" }),
-        label: intl.formatMessage({ id: "place-holder-email" }),
-        icon: "fas fa-envelope",
-        field_name: "email_input_",
-      },
-      {
-        key: "NumberInput",
-        canHaveAnswer: true,
-        name: intl.formatMessage({ id: "number-input" }),
-        label: intl.formatMessage({ id: "place-holder-label" }),
-        icon: "fas fa-plus",
-        field_name: "number_input_",
-      },
-      {
-        key: "PhoneNumber",
-        canHaveAnswer: true,
-        name: intl.formatMessage({ id: "phone-input" }),
-        label: intl.formatMessage({ id: "place-holder-phone-number" }),
-        icon: "fas fa-phone",
-        field_name: "phone_input_",
-      },
-      {
-        key: "TextArea",
-        canHaveAnswer: true,
-        name: intl.formatMessage({ id: "multi-line-input" }),
-        label: intl.formatMessage({ id: "place-holder-label" }),
-        icon: "fas fa-text-height",
-        field_name: "text_area_",
-      },
-      {
-        key: "TwoColumnRow",
-        canHaveAnswer: false,
-        name: intl.formatMessage({ id: "two-columns-row" }),
-        label: "",
-        icon: "fas fa-columns",
-        field_name: "two_col_row_",
-      },
-      {
-        key: "ThreeColumnRow",
-        canHaveAnswer: false,
-        name: intl.formatMessage({ id: "three-columns-row" }),
-        label: "",
-        icon: "fas fa-columns",
-        field_name: "three_col_row_",
-      },
-      {
-        key: "FourColumnRow",
-        element: "MultiColumnRow",
-        canHaveAnswer: false,
-        name: intl.formatMessage({ id: "four-columns-row" }),
-        label: "",
-        icon: "fas fa-columns",
-        field_name: "four_col_row_",
-        col_count: 4,
-        class_name: "col-md-3",
-      },
-      {
-        key: "FiveColumnRow",
-        element: "MultiColumnRow",
-        canHaveAnswer: false,
-        name: intl.formatMessage({ id: "five-columns-row" }),
-        label: "",
-        icon: "fas fa-columns",
-        field_name: "five_col_row_",
-        col_count: 5,
-        class_name: "col",
-      },
-      {
-        key: "SixColumnRow",
-        element: "MultiColumnRow",
-        canHaveAnswer: false,
-        name: intl.formatMessage({ id: "six-columns-row" }),
-        label: "",
-        icon: "fas fa-columns",
-        field_name: "six_col_row_",
-        col_count: 6,
-        class_name: "col-md-2",
-      },
-      {
-        key: "Image",
-        name: intl.formatMessage({ id: "image" }),
-        label: "",
-        icon: "far fa-image",
-        field_name: "image_",
-        src: "",
-      },
-      {
-        key: "Rating",
-        canHaveAnswer: true,
-        name: intl.formatMessage({ id: "rating" }),
-        label: intl.formatMessage({ id: "place-holder-label" }),
-        icon: "fas fa-star",
-        field_name: "rating_",
-      },
-      {
-        key: "DatePicker",
-        canDefaultToday: true,
-        canReadOnly: true,
-        dateFormat: "MM/dd/yyyy",
-        timeFormat: "hh:mm aa",
-        showTimeSelect: false,
-        showTimeSelectOnly: false,
-        showTimeInput: false,
-        name: intl.formatMessage({ id: "date" }),
-        icon: "far fa-calendar-alt",
-        label: intl.formatMessage({ id: "place-holder-label" }),
-        field_name: "date_picker_",
-      },
-      {
-        key: "Signature",
-        canReadOnly: true,
-        name: intl.formatMessage({ id: "signature" }),
-        icon: "fas fa-pen-square",
-        label: intl.formatMessage({ id: "signature" }),
-        field_name: "signature_",
-      },
-      {
-        key: "HyperLink",
-        name: intl.formatMessage({ id: "website" }),
-        icon: "fas fa-link",
-        static: true,
-        content: intl.formatMessage({ id: "place-holder-website-link" }),
-        href: "http://www.example.com",
-      },
-      {
-        key: "Download",
-        name: intl.formatMessage({ id: "file-attachment" }),
-        icon: "fas fa-file",
-        static: true,
-        content: intl.formatMessage({ id: "place-holder-file-name" }),
-        field_name: "download_",
-        file_path: "",
-        _href: "",
-      },
-      {
         key: "Range",
-        name: intl.formatMessage({ id: "range" }),
+        name: "Slider",
         icon: "fas fa-sliders-h",
         label: intl.formatMessage({ id: "place-holder-label" }),
         field_name: "range_",
@@ -368,20 +203,367 @@ class Toolbar extends React.Component {
         max_label: intl.formatMessage({ id: "difficult" }),
       },
       {
-        key: "Camera",
-        name: intl.formatMessage({ id: "camera" }),
-        icon: "fas fa-camera",
+        key: "NumberInput",
+        canHaveAnswer: true,
+        name: "Number",
         label: intl.formatMessage({ id: "place-holder-label" }),
-        field_name: "camera_",
+        icon: "fas fa-plus",
+        field_name: "number_input_",
+      },
+      {
+        key: "Calculation",
+        canHaveAnswer: true,
+        name: "Calculation",
+        label: intl.formatMessage({ id: "place-holder-label" }),
+        icon: "fas fa-plus",
+        field_name: "number_input_",
+      },
+      {
+        key: "Date",
+        canDefaultToday: true,
+        canReadOnly: true,
+        dateFormat: "MM/dd/yyyy",
+        timeFormat: "hh:mm aa",
+        showTimeSelect: false,
+        showTimeSelectOnly: false,
+        showTimeInput: false,
+        name: "Date",
+        icon: "far fa-calendar-alt",
+        label: intl.formatMessage({ id: "place-holder-label" }),
+        field_name: "date_picker_",
+      },
+      {
+        key: "Time",
+        canDefaultToday: true,
+        canReadOnly: true,
+        dateFormat: "MM/dd/yyyy",
+        timeFormat: "hh:mm aa",
+        showTimeSelect: false,
+        showTimeSelectOnly: false,
+        showTimeInput: false,
+        name: "Time",
+        icon: "far fa-calendar-alt",
+        label: intl.formatMessage({ id: "place-holder-label" }),
+        field_name: "date_picker_",
+      },
+      {
+        key: "DateAndTime",
+        canDefaultToday: true,
+        canReadOnly: true,
+        dateFormat: "MM/dd/yyyy",
+        timeFormat: "hh:mm aa",
+        showTimeSelect: false,
+        showTimeSelectOnly: false,
+        showTimeInput: false,
+        name: "Date & Time",
+        icon: "far fa-calendar-alt",
+        label: intl.formatMessage({ id: "place-holder-label" }),
+        field_name: "date_picker_",
+      },
+      {
+        key: "NumAndDate",
+        canDefaultToday: true,
+        canReadOnly: true,
+        dateFormat: "MM/dd/yyyy",
+        timeFormat: "hh:mm aa",
+        showTimeSelect: false,
+        showTimeSelectOnly: false,
+        showTimeInput: false,
+        name: "Num & Date",
+        icon: "far fa-calendar-alt",
+        label: intl.formatMessage({ id: "place-holder-label" }),
+        field_name: "date_picker_",
+      },
+      {
+        key: "Image",
+        name: "Image",
+        label: "",
+        icon: "far fa-image",
+        field_name: "image_",
+        src: "",
       },
       {
         key: "FileUpload",
-        name: intl.formatMessage({ id: "file-upload" }),
+        name: "Upload File",
         icon: "fas fa-file",
         label: intl.formatMessage({ id: "place-holder-label" }),
         field_name: "file_upload_",
       },
+      {
+        key: "QRCode",
+        name: "QR Code",
+        label: "",
+        icon: "far fa-image",
+        field_name: "image_",
+        src: "",
+      },
+      {
+        key: "Remark",
+        name: "Remark",
+        static: true,
+        icon: "fas fa-font",
+        content: intl.formatMessage({ id: "place-holder-text" }),
+      },
+      {
+        key: "Summary",
+        name: "Summary",
+        static: true,
+        icon: "fas fa-font",
+        content: intl.formatMessage({ id: "place-holder-text" }),
+      },
+      {
+        key: "Grid",
+        name: "Grid",
+        static: true,
+        icon: "fas fa-font",
+        content: intl.formatMessage({ id: "place-holder-text" }),
+      },
+      {
+        key: "Subform",
+        name: "Subform",
+        static: true,
+        icon: "fas fa-font",
+        content: intl.formatMessage({ id: "place-holder-text" }),
+      },
     ];
+
+    // [
+    //   {
+    //     key: "Header",
+    //     name: intl.formatMessage({ id: "header-text" }),
+    //     icon: "fas fa-heading",
+    //     static: true,
+    //     content: intl.formatMessage({ id: "place-holder-text" }),
+    //   },
+    //   {
+    //     key: "Label",
+    //     name: intl.formatMessage({ id: "label" }),
+    //     static: true,
+    //     icon: "fas fa-font",
+    //     content: intl.formatMessage({ id: "place-holder-text" }),
+    //   },
+    //   {
+    //     key: "Paragraph",
+    //     name: intl.formatMessage({ id: "paragraph" }),
+    //     static: true,
+    //     icon: "fas fa-paragraph",
+    //     content: intl.formatMessage({ id: "place-holder-text" }),
+    //   },
+    //   {
+    //     key: "LineBreak",
+    //     name: intl.formatMessage({ id: "line-break" }),
+    //     static: true,
+    //     icon: "fas fa-arrows-alt-h",
+    //   },
+    //   {
+    //     key: "Dropdown",
+    //     canHaveAnswer: true,
+    //     name: intl.formatMessage({ id: "dropdown" }),
+    //     icon: "far fa-caret-square-down",
+    //     label: intl.formatMessage({ id: "place-holder-label" }),
+    //     field_name: "dropdown_",
+    //     options: [],
+    //   },
+    //   {
+    //     key: "Tags",
+    //     canHaveAnswer: true,
+    //     name: intl.formatMessage({ id: "tags" }),
+    //     icon: "fas fa-tags",
+    //     label: intl.formatMessage({ id: "place-holder-label" }),
+    //     field_name: "tags_",
+    //     options: [],
+    //   },
+    //   {
+    //     key: "Checkboxes",
+    //     canHaveAnswer: true,
+    //     name: intl.formatMessage({ id: "checkboxes" }),
+    //     icon: "far fa-check-square",
+    //     label: intl.formatMessage({ id: "place-holder-label" }),
+    //     field_name: "checkboxes_",
+    //     options: [],
+    //   },
+    //   {
+    //     key: "RadioButtons",
+    //     canHaveAnswer: true,
+    //     name: intl.formatMessage({ id: "multiple-choice" }),
+    //     icon: "far fa-dot-circle",
+    //     label: intl.formatMessage({ id: "place-holder-label" }),
+    //     field_name: "radiobuttons_",
+    //     options: [],
+    //   },
+    //   {
+    //     key: "TextInput",
+    //     canHaveAnswer: true,
+    //     name: intl.formatMessage({ id: "text-input" }),
+    //     label: intl.formatMessage({ id: "place-holder-label" }),
+    //     icon: "fas fa-font",
+    //     field_name: "text_input_",
+    //   },
+    //   {
+    //     key: "EmailInput",
+    //     canHaveAnswer: true,
+    //     name: intl.formatMessage({ id: "email-input" }),
+    //     label: intl.formatMessage({ id: "place-holder-email" }),
+    //     icon: "fas fa-envelope",
+    //     field_name: "email_input_",
+    //   },
+    //   {
+    //     key: "NumberInput",
+    //     canHaveAnswer: true,
+    //     name: intl.formatMessage({ id: "number-input" }),
+    //     label: intl.formatMessage({ id: "place-holder-label" }),
+    //     icon: "fas fa-plus",
+    //     field_name: "number_input_",
+    //   },
+    //   {
+    //     key: "PhoneNumber",
+    //     canHaveAnswer: true,
+    //     name: intl.formatMessage({ id: "phone-input" }),
+    //     label: intl.formatMessage({ id: "place-holder-phone-number" }),
+    //     icon: "fas fa-phone",
+    //     field_name: "phone_input_",
+    //   },
+    //   {
+    //     key: "TextArea",
+    //     canHaveAnswer: true,
+    //     name: intl.formatMessage({ id: "multi-line-input" }),
+    //     label: intl.formatMessage({ id: "place-holder-label" }),
+    //     icon: "fas fa-text-height",
+    //     field_name: "text_area_",
+    //   },
+    //   {
+    //     key: "TwoColumnRow",
+    //     canHaveAnswer: false,
+    //     name: intl.formatMessage({ id: "two-columns-row" }),
+    //     label: "",
+    //     icon: "fas fa-columns",
+    //     field_name: "two_col_row_",
+    //   },
+    //   {
+    //     key: "ThreeColumnRow",
+    //     canHaveAnswer: false,
+    //     name: intl.formatMessage({ id: "three-columns-row" }),
+    //     label: "",
+    //     icon: "fas fa-columns",
+    //     field_name: "three_col_row_",
+    //   },
+    //   {
+    //     key: "FourColumnRow",
+    //     element: "MultiColumnRow",
+    //     canHaveAnswer: false,
+    //     name: intl.formatMessage({ id: "four-columns-row" }),
+    //     label: "",
+    //     icon: "fas fa-columns",
+    //     field_name: "four_col_row_",
+    //     col_count: 4,
+    //     class_name: "col-md-3",
+    //   },
+    //   {
+    //     key: "FiveColumnRow",
+    //     element: "MultiColumnRow",
+    //     canHaveAnswer: false,
+    //     name: intl.formatMessage({ id: "five-columns-row" }),
+    //     label: "",
+    //     icon: "fas fa-columns",
+    //     field_name: "five_col_row_",
+    //     col_count: 5,
+    //     class_name: "col",
+    //   },
+    //   {
+    //     key: "SixColumnRow",
+    //     element: "MultiColumnRow",
+    //     canHaveAnswer: false,
+    //     name: intl.formatMessage({ id: "six-columns-row" }),
+    //     label: "",
+    //     icon: "fas fa-columns",
+    //     field_name: "six_col_row_",
+    //     col_count: 6,
+    //     class_name: "col-md-2",
+    //   },
+    //   {
+    //     key: "Image",
+    //     name: intl.formatMessage({ id: "image" }),
+    //     label: "",
+    //     icon: "far fa-image",
+    //     field_name: "image_",
+    //     src: "",
+    //   },
+    //   {
+    //     key: "Rating",
+    //     canHaveAnswer: true,
+    //     name: intl.formatMessage({ id: "rating" }),
+    //     label: intl.formatMessage({ id: "place-holder-label" }),
+    //     icon: "fas fa-star",
+    //     field_name: "rating_",
+    //   },
+    //   {
+    //     key: "DatePicker",
+    //     canDefaultToday: true,
+    //     canReadOnly: true,
+    //     dateFormat: "MM/dd/yyyy",
+    //     timeFormat: "hh:mm aa",
+    //     showTimeSelect: false,
+    //     showTimeSelectOnly: false,
+    //     showTimeInput: false,
+    //     name: intl.formatMessage({ id: "date" }),
+    //     icon: "far fa-calendar-alt",
+    //     label: intl.formatMessage({ id: "place-holder-label" }),
+    //     field_name: "date_picker_",
+    //   },
+    //   {
+    //     key: "Signature",
+    //     canReadOnly: true,
+    //     name: intl.formatMessage({ id: "signature" }),
+    //     icon: "fas fa-pen-square",
+    //     label: intl.formatMessage({ id: "signature" }),
+    //     field_name: "signature_",
+    //   },
+    //   {
+    //     key: "HyperLink",
+    //     name: intl.formatMessage({ id: "website" }),
+    //     icon: "fas fa-link",
+    //     static: true,
+    //     content: intl.formatMessage({ id: "place-holder-website-link" }),
+    //     href: "http://www.example.com",
+    //   },
+    //   {
+    //     key: "Download",
+    //     name: intl.formatMessage({ id: "file-attachment" }),
+    //     icon: "fas fa-file",
+    //     static: true,
+    //     content: intl.formatMessage({ id: "place-holder-file-name" }),
+    //     field_name: "download_",
+    //     file_path: "",
+    //     _href: "",
+    //   },
+    //   {
+    //     key: "Range",
+    //     name: intl.formatMessage({ id: "range" }),
+    //     icon: "fas fa-sliders-h",
+    //     label: intl.formatMessage({ id: "place-holder-label" }),
+    //     field_name: "range_",
+    //     step: 1,
+    //     default_value: 3,
+    //     min_value: 1,
+    //     max_value: 5,
+    //     min_label: intl.formatMessage({ id: "easy" }),
+    //     max_label: intl.formatMessage({ id: "difficult" }),
+    //   },
+    //   {
+    //     key: "Camera",
+    //     name: intl.formatMessage({ id: "camera" }),
+    //     icon: "fas fa-camera",
+    //     label: intl.formatMessage({ id: "place-holder-label" }),
+    //     field_name: "camera_",
+    //   },
+    //   {
+    //     key: "FileUpload",
+    //     name: intl.formatMessage({ id: "file-upload" }),
+    //     icon: "fas fa-file",
+    //     label: intl.formatMessage({ id: "place-holder-label" }),
+    //     field_name: "file_upload_",
+    //   },
+    // ];
   }
 
   create(item) {
@@ -556,66 +738,104 @@ class Toolbar extends React.Component {
     return (
       <div className="d-flex-row">
         <div
-          className="col-md-3 react-form-builder-toolbar float-left"
-          style={{
-            top: 37.66,
-            backgroundColor: "rgb(221,221,221)",
-            borderTopLeftRadius: 20,
-            borderBottomLeftRadius: 20,
-          }}
+          className="col-md-4 react-form-builder-toolbar float-left p-0"
+          style={
+            {
+              // backgroundColor: "rgb(221,221,221)",
+              // borderTopLeftRadius: 20,
+              // borderBottomLeftRadius: 20,
+            }
+          }
         >
-          <h4 style={{ marginTop: 10 }}>
+          {/* <h4 style={{ marginTop: 10 }}>
             {this.props.intl.formatMessage({ id: "toolbox" })}
-          </h4>
-          <div>
-            <input
-              type="search"
-              placeholder="   Search fields..."
-              style={{
-                width: "80%",
-                borderRadius: "5px",
-                boxShadow: "none",
-                border: "none",
-                fontFamily: "inter",
-                backgroundColor: "lightgray",
-              }}
-            />
-          </div>
+          </h4> */}
           <div
-            className="d-flex col align-items-start justify-items-between p-0"
-            style={{ marginLeft: 5, marginBottom: 10 }}
+            className="d-flex w-100 justify-content-between"
+            style={{ marginTop: 13, marginBottom: 23 }}
           >
             <div
-              className="d-flex col rounded rounded-lg"
-              style={{
-                marginTop: 15,
-                marginRight: 5,
-                backgroundColor: "rgb(169,169,169)",
-                height: 30,
-                width: 30,
+              onClick={() => {
+                this.setState({ ...this.state, selectedFieldList: "basic" });
               }}
-            ></div>
+              className="w-50 d-flex flex-wrap justify-content-center align-items-center"
+              style={{
+                height: 52,
+                color: "#2A2C30",
+                fontSize: 16,
+                fontStyle: "normal",
+                fontWeight: 500,
+                cursor: "pointer",
+                borderBottom:
+                  this.state.selectedFieldList === "basic"
+                    ? "4px solid #0D487B"
+                    : "1px solid #BCBCBC",
+              }}
+            >
+              Basic Fields
+            </div>
             <div
-              className="d-flex flex-wrap rounded"
-              style={{
-                borderLeft: "6px solid rgb(169,169,169)",
-                marginTop: 5,
-                height: "400",
-                marginRight: 15,
+              onClick={() => {
+                this.setState({ ...this.state, selectedFieldList: "library" });
               }}
-            ></div>
-            <ul className="d-flex row">
-              {/* {items.slice(0, 6).map(this.renderItem)} */}
-              {items.map(this.renderItem)}
-              {/* {groupKeys.map((k) => (
-            <ToolbarGroupItem
-              key={k}
-              name={k}
-              group={grouped.get(k)}
-              renderItem={this.renderItem}
-            />
-          ))} */}
-            </ul>
+              className="w-50 d-flex flex-wrap justify-content-center align-items-center"
+              style={{
+                height: 52,
+                textAlign: "center",
+                color: "#2A2C30",
+                fontSize: 16,
+                fontStyle: "normal",
+                fontWeight: 500,
+                cursor: "pointer",
+                borderBottom:
+                  this.state.selectedFieldList === "library"
+                    ? "4px solid #0D487B"
+                    : "1px solid #BCBCBC",
+              }}
+            >
+              Field Library
+            </div>
+          </div>
+          <div
+            className="d-flex col align-items-start justify-items-between m-0 p-0"
+            style={{ marginBottom: 10 }}
+          >
+            {this.state.selectedFieldList === "basic" ? (
+              <div
+                className="w-100"
+                style={{
+                  display: "inline-flex",
+                  height: 715,
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                  gap: 48,
+                  flexShrink: 0,
+                }}
+              >
+                <div className="d-flex flex-wrap" style={{ gap: 28 }}>
+                  {items.slice(0, 6).map(this.renderItem)}
+                </div>
+                <div className="d-flex flex-wrap" style={{ gap: 28 }}>
+                  {items.slice(6, 12).map(this.renderItem)}
+                </div>
+                <div className="d-flex flex-wrap" style={{ gap: 28 }}>
+                  {items.slice(12, 19).map(this.renderItem)}
+                </div>
+              </div>
+            ) : (
+              <div
+                className="w-100 d-flex justify-content-center flex-wrap align-items-center"
+                style={{
+                  color: "#2A2C30",
+                  fontSize: 20,
+                  fontStyle: "normal",
+                  fontWeight: 500,
+                  height: 200,
+                }}
+              >
+                Coming Soon!
+              </div>
+            )}
           </div>
         </div>
       </div>

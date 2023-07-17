@@ -108,6 +108,7 @@ export default class Preview extends React.Component {
   }
 
   _onDestroy(item) {
+    console.log("deleted", item);
     if (item.childItems) {
       item.childItems.forEach((x) => {
         const child = this.getDataById(x);
@@ -227,6 +228,8 @@ export default class Preview extends React.Component {
       store.dispatch("insertItem", item);
     }
   }
+
+  duplicateCard(item, hoverIndex, id) {}
 
   moveCard(dragIndex, hoverIndex) {
     const { data } = this.state;

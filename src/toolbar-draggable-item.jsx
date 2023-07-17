@@ -23,10 +23,42 @@ class ToolbarItem extends React.Component {
     const { connectDragSource, data, onClick } = this.props;
     if (!connectDragSource) return null;
     return connectDragSource(
-      <li className="dragList pl-0 py-0 rounded rounded-lg" onClick={onClick}>
-        <i className={data.icon}></i>
-        {data.name}
-      </li>
+      <div className="dragList p-0" onClick={onClick}>
+        <div
+          style={{
+            display: "flex",
+            padding: "11px 16px",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 10,
+          }}
+          className={data.icon}
+        >
+          {/* {data.icon} */}
+        </div>
+        <div
+          style={{
+            display: "flex",
+            width: 124,
+            alignItems: "center",
+            gap: 16,
+            flexShrink: 0,
+            borderLeft: "1px solid  #BCBCBC",
+          }}
+        >
+          <div
+            style={{
+              paddingLeft: 16,
+              color: "#46494F",
+              fontFamily: "Inter",
+              fontSize: 16,
+              fontWeight: 500,
+            }}
+          >
+            {data.name}
+          </div>
+        </div>
+      </div>
     );
   }
 }

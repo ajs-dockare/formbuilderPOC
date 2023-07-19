@@ -14,12 +14,17 @@ import { get } from "./stores/requests";
 import ID from "./UUID";
 import IntlMessages from "./language-provider/IntlMessages";
 import {
-  Checkbox,
+  Button,
   Divider,
+  FormControl,
   FormControlLabel,
   FormGroup,
+  Radio,
+  RadioGroup,
   Switch,
 } from "@material-ui/core";
+import Select from "react-select";
+import checkChanges from "./functions/checkChanges";
 
 const toolbar = {
   options: ["inline", "list", "textAlign", "fontSize", "link", "history"],
@@ -33,17 +38,22 @@ const toolbar = {
 export default class FormElementsEdit extends React.Component {
   constructor(props) {
     super(props);
+    this.dataRef = React.createRef();
+    this.editLabelRef = React.createRef();
     this.state = {
       element: this.props.element,
       data: this.props.data,
       dirty: false,
-      currentEditingIndex: 0,
+      currentEditing: "",
     };
   }
 
-  toggleRequired() {
-    // const this_element = this.state.element;
+  componentDidMount() {
+    // this will keep track of the original object
+    this.dataRef.current = JSON.parse(JSON.stringify(this.props.element));
+    this.editLabelRef.current.focus();
   }
+  componentDidUpdate() {}
 
   editElementProp(elemProperty, targProperty, e) {
     // elemProperty could be content or label
@@ -119,10 +129,13 @@ export default class FormElementsEdit extends React.Component {
     }
   }
 
-  updatedSelectFilled = (curr, currVal, next, nextVal) => {
+  hasErrors = (id) => {
+    return false;
+  };
+
+  updatedSelectFilled = (curr, currVal) => {
     const this_element = this.state.element;
     this_element.sectionFilled[curr] = currVal;
-    this_element.sectionFilled[next] = nextVal;
 
     this.setState(
       {
@@ -135,12 +148,21 @@ export default class FormElementsEdit extends React.Component {
     );
   };
 
+  updatePrevious = (curr) => {
+    if (this.hasErrors(this.state.currentEditing)) {
+      this.updatedSelectFilled(curr, 2);
+      return false;
+    }
+    if (!checkChanges(this.dataRef?.current[curr], this.props.element[curr])) {
+      this.updatedSelectFilled(curr, 1);
+    }
+    return true;
+  };
+
   selectSection(label) {
     this.setState({
       ...this.state,
-      currentEditingIndex: Object.keys(
-        this.props.element.sectionFilled
-      ).indexOf(label),
+      currentEditing: label,
     });
   }
 
@@ -224,105 +246,174 @@ export default class FormElementsEdit extends React.Component {
     }
 
     const NumberValidations = [
-      { name: "Variable Name", id: "label" },
+      { name: "Variable Name", id: "variable_name" },
       { name: "Enforce Decimal", id: "enforce_decimal" },
       { name: "Lower & Upper Limit", id: "limit" },
-      { name: "Field Width", id: "field_width" },
       { name: "Measurement Unit", id: "measurement_unit" },
       { name: "Help text", id: "help_text" },
-      { name: "Validation messages", id: "validation_messages" },
-      { name: "Dependencies", id: "dependencies" },
-      { name: "Annotations", id: "annotations" },
+      { name: "Instructions", id: "instructions" },
       { name: "Export Field", id: "export_field" },
     ];
 
     return (
       <div>
-        <div className="edit-modal-header">
+        <div
+          style={{
+            background: "white",
+            height: 85,
+            padding: "35px 45px 22px 45px",
+          }}
+        >
           <div className="d-flex justify-content-between flex-wrap align-items-center">
-            <div
-              className="d-flex flex-wrap align-items-center"
-              style={{ gap: 12 }}
+            <svg
+              style={{ cursor: "pointer" }}
+              onClick={this.props.manualEditModeOff}
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
             >
-              <svg
-                style={{ cursor: "pointer" }}
-                onClick={this.props.manualEditModeOff}
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-              >
-                <path
-                  d="M15 8H4"
-                  stroke="#2A2C30"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-                <path
-                  d="M7.99992 12.6666L3.33325 7.99998L7.99992 3.33331"
-                  stroke="#2A2C30"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-              <h4 className="edit-modal-header-text m-0">
-                {this.props.element.text}
-              </h4>
-            </div>
-
-            <FormGroup>
-              <FormControlLabel
-                control={
-                  <Switch
-                    color="primary"
-                    id="is-required"
-                    className="shadow-none"
-                    checked={this_checked}
-                    onChange={this.editElementProp.bind(
-                      this,
-                      "required",
-                      "checked"
-                    )}
-                  />
-                }
-                label="Required"
+              <path
+                d="M15 8H4"
+                stroke="#2A2C30"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               />
-            </FormGroup>
+              <path
+                d="M7.99992 12.6666L3.33325 7.99998L7.99992 3.33331"
+                stroke="#2A2C30"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+
+            <Button
+              style={{
+                display: "flex",
+                padding: "8px 10px",
+                flexDirection: "column",
+                alignItems: "flex-start",
+                gap: 10,
+                borderRadius: 6,
+                backgroundColor: "#0D487B",
+                color: "#FFF",
+                fontSize: 14,
+                fontWeight: 400,
+                lineHeight: "normal",
+              }}
+              onClick={() => {
+                // this.updateElement.bind(this);
+                if (this.updatePrevious(this.state.currentEditing))
+                  this.props.manualEditModeOff();
+              }}
+            >
+              Save & Exit
+            </Button>
           </div>
         </div>
-        {/* <i
-            className="float-right fas fa-times dismiss-edit"
-            onClick={this.props.manualEditModeOff}
-          ></i> */}
+        <div className="edit-modal-header">
+          <div className="col p-0">
+            <div
+              style={{
+                color: "#C37068",
+                fontSize: 14,
+                fontWeight: 400,
+                lineHeight: "normal",
+                marginBottom: 3,
+              }}
+            >
+              Field Label
+            </div>
+            <div style={{ marginBottom: 15 }}>
+              <input
+                id="label"
+                type="text"
+                ref={this.editLabelRef}
+                placeholder="Label"
+                className="form-control shadow-none"
+                defaultValue={this.props.element.label}
+                onBlur={this.updateElement.bind(this)}
+                onChange={this.editElementProp.bind(this, "label", "value")}
+              />
+            </div>
+            <div className="d-flex justify-content-end">
+              <FormGroup>
+                <FormControlLabel
+                  labelPlacement="start"
+                  control={
+                    <Switch
+                      color="primary"
+                      id="is-required"
+                      className="shadow-none"
+                      checked={this_checked}
+                      onChange={this.editElementProp.bind(
+                        this,
+                        "required",
+                        "checked"
+                      )}
+                    />
+                  }
+                  label="Required"
+                />
+              </FormGroup>
+            </div>
+          </div>
+        </div>
 
-        <div className="d-flex" style={{ marginLeft: 30, marginTop: 20 }}>
-          <div style={{ height: "100%", marginRight: 20 }}>
-            <div>Add properties</div>
+        <div
+          className="d-flex"
+          style={{
+            height: "75%",
+          }}
+        >
+          <div
+            style={{
+              borderRight: "1px solid #BCBCBC",
+              paddingTop: 25,
+              paddingRight: 45,
+              paddingLeft: 37,
+            }}
+          >
+            <div
+              style={{
+                marginBottom: 29,
+                color: "#2A2C30",
+                fontSize: 16,
+                fontWeight: 500,
+                lineHeight: "normal",
+                textAlign: "center",
+              }}
+            >
+              Add properties
+            </div>
             {NumberValidations.map((el, indx) => (
               <div
+                onClick={() => {
+                  if (this.updatePrevious(this.state.currentEditing))
+                    this.setState({ ...this.state, currentEditing: el.id });
+                }}
                 key={indx}
                 style={{
-                  marginTop: 5,
-                  gap: 10,
+                  cursor: "pointer",
+                  marginBottom: 12,
                   borderRadius: 4,
+                  width: 180,
                   padding: "8px 12px",
                   border:
-                    this.props.element.sectionFilled[el.id] === 1
+                    this.state.currentEditing === el.id
                       ? "1px solid #6F8DD2"
                       : "",
                   backgroundColor:
-                    this.props.element.sectionFilled[el.id] === 1
-                      ? "#F7F9FE"
-                      : "",
+                    this.state.currentEditing === el.id ? "#F7F9FE" : "",
                 }}
                 className="d-flex flex-wrap align-items-center justify-content-between"
               >
-                <div style={{ fontSize: 10 }}>{el.name}</div>
-                {(this.props.element.sectionFilled[el.id] === 0 ||
-                  this.props.element.sectionFilled[el.id] === 1) && (
+                <div style={{ fontSize: 12, color: "black" }}>{el.name}</div>
+
+                {this.props.element.sectionFilled[el.id] === 0 && (
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="24"
@@ -336,7 +427,7 @@ export default class FormElementsEdit extends React.Component {
                     />
                   </svg>
                 )}
-                {this.props.element.sectionFilled[el.id] === 3 && (
+                {this.props.element.sectionFilled[el.id] === 1 && (
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="24"
@@ -350,25 +441,13 @@ export default class FormElementsEdit extends React.Component {
                     />
                   </svg>
                 )}
-
-                {this.props.element.sectionFilled[el.id] === 2 && (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                  >
-                    <path
-                      d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM9 9V15H15V9H9Z"
-                      fill="#FACE31"
-                    />
-                  </svg>
-                )}
               </div>
             ))}
           </div>
-          <div style={{ width: "60%" }}>
+          <div
+            className="w-100"
+            style={{ marginTop: 73, marginLeft: 31, marginRight: 45 }}
+          >
             {this.props.element.hasOwnProperty("content") && (
               <div className="form-group">
                 <label className="control-label">
@@ -426,50 +505,60 @@ export default class FormElementsEdit extends React.Component {
                 />
               </div>
             )}
-            {this.props.element.sectionFilled["label"] === 1 &&
-              this.props.element.hasOwnProperty("label") && (
+            {this.state.currentEditing === "variable_name" &&
+              this.props.element.hasOwnProperty("variable_name") && (
                 <div className="form-group">
-                  <label
-                    style={{
-                      fontSize: 16,
-                      fontWeight: 500,
-                      color: "#2A2C30",
-                    }}
-                  >
-                    <IntlMessages id="Variable Name" />
-                  </label>
-
                   <div
                     style={{
-                      fontSize: 12,
-                      fontWeight: 400,
-                      color: "#46494F",
-                      marginBottom: 10,
+                      paddingBottom: 28,
+                      borderBottom: "1px dashed #BCBCBC",
+                      marginBottom: 28,
                     }}
                   >
-                    This name will be used in export. Name must be unique while
-                    exporting.
+                    <label
+                      style={{
+                        color: "#2A2C30",
+                        fontSize: 16,
+                        fontWeight: 500,
+                        lineHeight: "normal",
+                        textAlign: "center",
+                      }}
+                    >
+                      <IntlMessages id="Variable Name" />
+                    </label>
+
+                    <div
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 400,
+                        color: "#46494F",
+                        marginTop: 16,
+                      }}
+                    >
+                      This name will be used in export. Name must be unique
+                      while exporting.
+                    </div>
                   </div>
-                  <Divider style={{ marginTop: 28, marginBottom: 28 }} />
                   <input
-                    id="label"
+                    style={{
+                      borderRadius: 6,
+                      border: "1px solid #BCBCBC",
+                      backgroundColor: "#FFF",
+                    }}
+                    id="variable_name"
                     type="text"
                     className="form-control shadow-none"
-                    defaultValue={this.props.element.label}
-                    onBlur={this.updateElement.bind(this)}
-                    onChange={this.editElementProp.bind(this, "label", "value")}
-                  />
-                  {/* <Editor
-                    toolbar={toolbar}
-                    defaultEditorState={editorState}
-                    onBlur={this.updateElement.bind(this)}
-                    onEditorStateChange={this.onEditorStateChange.bind(
+                    placeholder="e.g age"
+                    defaultValue={this.props.element.variable_name}
+                    onBlur={(e) => {
+                      // this.updateElement.bind(this)
+                    }}
+                    onChange={this.editElementProp.bind(
                       this,
-                      0,
-                      "label"
+                      "variable_name",
+                      "value"
                     )}
-                    stripPastedStyles={true}
-                  /> */}
+                  />
                   <br />
 
                   {this.props.element.hasOwnProperty("readOnly") && (
@@ -687,96 +776,191 @@ export default class FormElementsEdit extends React.Component {
               </div>
             )}
 
-            {this.props.element.sectionFilled["enforce_decimal"] === 1 &&
+            {this.state.currentEditing === "enforce_decimal" &&
               this.props.element.hasOwnProperty("enforce_decimal") && (
                 <div className="form-group">
-                  <label
-                    style={{
-                      fontSize: 16,
-                      fontWeight: 500,
-                      color: "#2A2C30",
-                    }}
-                  >
-                    <IntlMessages id="Enforce decimals" />
-                  </label>
-
                   <div
                     style={{
-                      fontSize: 12,
-                      fontWeight: 400,
-                      color: "#46494F",
-                      marginBottom: 10,
+                      paddingBottom: 28,
+                      borderBottom: "1px dashed #BCBCBC",
+                      marginBottom: 28,
                     }}
                   >
-                    Define if this field will allow user to enter decimals.
+                    <label
+                      style={{
+                        color: "#2A2C30",
+                        fontSize: 16,
+                        fontWeight: 500,
+                        lineHeight: "normal",
+                        textAlign: "center",
+                      }}
+                    >
+                      <IntlMessages id="Enforce decimals" />
+                    </label>
+
+                    <div
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 400,
+                        color: "#46494F",
+                        marginTop: 16,
+                      }}
+                    >
+                      Define if this field will allow user to enter decimals.
+                    </div>
                   </div>
 
-                  <Divider style={{ marginTop: 28, marginBottom: 28 }} />
+                  <FormControl className="w-100">
+                    <RadioGroup
+                      row
+                      aria-labelledby="demo-row-radio-buttons-group-label"
+                      name="row-radio-buttons-group"
+                      className="d-flex w-50 justify-content-between"
+                    >
+                      <FormControlLabel
+                        className="d-flex w-50 justify-content-start"
+                        value="yes"
+                        control={
+                          <Radio
+                            onChange={this.editElementProp.bind(
+                              this,
+                              "enforce_decimal",
+                              "value"
+                            )}
+                            checked={
+                              this.props.element.enforce_decimal === "yes"
+                            }
+                            color="primary"
+                          />
+                        }
+                        label="Yes"
+                      />
+                      <FormControlLabel
+                        className="d-flex justify-content-start"
+                        value="no"
+                        control={
+                          <Radio
+                            onChange={this.editElementProp.bind(
+                              this,
+                              "enforce_decimal",
+                              "value"
+                            )}
+                            checked={
+                              this.props.element.enforce_decimal === "no"
+                            }
+                            color="primary"
+                          />
+                        }
+                        label="No"
+                      />
+                    </RadioGroup>
+                  </FormControl>
 
-                  <FormGroup>
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          id="enforce_decimal"
-                          type="checkbox"
-                          checked={this.props.element.enforce_decimal}
-                          onChange={this.editElementProp.bind(
-                            this,
-                            "enforce_decimal",
-                            "checked"
-                          )}
-                          color="primary"
-                          className="shadow-none"
-                        />
-                      }
-                      label="Enforce decimal"
-                    />
-                  </FormGroup>
+                  {this.props.element.enforce_decimal === "yes" && (
+                    <Select
+                      id="decimal_value"
+                      classNames={{
+                        control: (state) =>
+                          state.isFocused
+                            ? "decimal_value-focused"
+                            : "decimal_value-normal",
+                        menu: (state) => "decimal_value-menu",
+                        menuList: (state) => "decimal_value-menu-list",
+                        option: (state) => {
+                          if (state.isSelected)
+                            return "decimal_value-option-selected";
+                          if (state.isFocused)
+                            return "decimal_value-option-focused";
+                          else return "decimal_value-option";
+                        },
+                      }}
+                      value={[
+                        {
+                          value: this.state.element.decimal_value,
+                          label: this.state.element.decimal_value,
+                        },
+                      ]}
+                      onChange={(e) => {
+                        const this_element = this.state.element;
+                        this_element.decimal_value = e.value;
+                        this.setState(
+                          {
+                            element: this_element,
+                            dirty: true,
+                          },
+                          () => {
+                            this.updateElement();
+                          }
+                        );
+                      }}
+                      options={[
+                        { value: "0.01", label: "0.01" },
+                        { value: "0.001", label: "0.001" },
+                        { value: "0.0001", label: "0.0001" },
+                        { value: "0.00001", label: "0.00001" },
+                      ]}
+                    ></Select>
+                  )}
                 </div>
               )}
-            {this.props.element.sectionFilled["help_text"] === 1 &&
+            {this.state.currentEditing === "help_text" &&
               this.props.element.hasOwnProperty("help_text") && (
                 <div className="form-group" style={{ marginTop: 10 }}>
-                  <label
+                  <div
                     style={{
-                      fontSize: 16,
-                      fontWeight: 500,
-                      color: "#2A2C30",
+                      paddingBottom: 28,
+                      borderBottom: "1px dashed #BCBCBC",
+                      marginBottom: 28,
                     }}
-                    className="control-label"
-                    htmlFor="help_text"
                   >
-                    <IntlMessages id="Help Text" />:
-                  </label>
+                    <label
+                      style={{
+                        color: "#2A2C30",
+                        fontSize: 16,
+                        fontWeight: 500,
+                        lineHeight: "normal",
+                        textAlign: "center",
+                      }}
+                    >
+                      <IntlMessages id="Help Text" />
+                    </label>
 
-                  <div
-                    style={{
-                      fontSize: 12,
-                      fontWeight: 400,
-                      color: "#46494F",
-                      maxWidth: 500,
-                    }}
-                  >
-                    Here you can enter some additional information about the
-                    field, that can help user to fill in the field.
+                    <div
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 400,
+                        color: "#46494F",
+                        maxWidth: 500,
+                        marginTop: 16,
+                      }}
+                    >
+                      Here you can enter some additional information about the
+                      field, that can help user to fill in the field.
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 400,
+                        color: "#46494F",
+                        marginTop: 16,
+                      }}
+                    >
+                      e.g. Measure patient's blood pressure while sitting down.
+                    </div>
                   </div>
-                  <Divider style={{ marginTop: 28, marginBottom: 28 }} />
-                  <div
+
+                  <textarea
                     style={{
-                      fontSize: 12,
-                      fontWeight: 400,
-                      color: "#46494F",
-                      marginBottom: 10,
+                      borderRadius: 6,
+                      border: "1px solid #BCBCBC",
+                      backgroundColor: "#FFF",
                     }}
-                  >
-                    e.g. Measure patient's blood pressure while sitting down.
-                  </div>
-                  <input
+                    placeholder="e.g. Measure patient’s blood pressure while sitting down."
                     id="help_text"
                     type="text"
                     className="form-control shadow-none"
                     defaultValue={this.props.element.help_text}
-                    onBlur={this.updateElement.bind(this)}
+                    // onBlur={this.updateElement.bind(this)}
                     onChange={this.editElementProp.bind(
                       this,
                       "help_text",
@@ -788,75 +972,54 @@ export default class FormElementsEdit extends React.Component {
             </p> */}
                 </div>
               )}
-            {this.props.element.sectionFilled["field_width"] === 1 &&
-              this.props.element.hasOwnProperty("field_width") && (
+            {this.state.currentEditing === "instructions" &&
+              this.props.element.hasOwnProperty("instructions") && (
                 <div className="form-group" style={{ marginTop: 10 }}>
-                  <label
-                    style={{
-                      fontSize: 16,
-                      fontWeight: 500,
-                      color: "#2A2C30",
-                    }}
-                    className="control-label"
-                    htmlFor="field_width"
-                  >
-                    <IntlMessages id="Field width" />:
-                  </label>
-
                   <div
                     style={{
-                      marginBottom: 20,
-                      fontSize: 12,
-                      fontWeight: 400,
-                      color: "#46494F",
+                      paddingBottom: 28,
+                      borderBottom: "1px dashed #BCBCBC",
+                      marginBottom: 28,
                     }}
                   >
-                    This value defines the width of the field's input box.
+                    <label
+                      style={{
+                        color: "#2A2C30",
+                        fontSize: 16,
+                        fontWeight: 500,
+                        lineHeight: "normal",
+                        textAlign: "center",
+                      }}
+                    >
+                      <IntlMessages id="Instructions" />
+                    </label>
+                    <div
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 400,
+                        color: "#46494F",
+                        marginTop: 16,
+                      }}
+                    >
+                      Here you can enter some additional information about the
+                      field, that can help user to fill in the field.
+                    </div>
                   </div>
-                  <Divider style={{ marginTop: 28, marginBottom: 28 }} />
-                  <input
-                    id="field_width"
-                    type="number"
-                    placeholder="Field width"
-                    className="form-control shadow-none"
-                    defaultValue={this.props.element.field_width}
-                    onBlur={this.updateElement.bind(this)}
-                    onChange={this.editElementProp.bind(
-                      this,
-                      "field_width",
-                      "value"
-                    )}
-                  />
-                  {/* <p className="help-block">
-              <IntlMessages id="variable-key-desc" />.
-            </p> */}
-                </div>
-              )}
-            {this.props.element.sectionFilled["validation_messages"] === 1 &&
-              this.props.element.hasOwnProperty("validation_messages") && (
-                <div className="form-group" style={{ marginTop: 10 }}>
-                  <label
+                  <textarea
                     style={{
-                      fontSize: 16,
-                      fontWeight: 500,
-                      color: "#2A2C30",
+                      borderRadius: 6,
+                      border: "1px solid #BCBCBC",
+                      backgroundColor: "#FFF",
                     }}
-                    className="control-label"
-                    htmlFor="validation_messages"
-                  >
-                    <IntlMessages id="Validation messages" />:
-                  </label>
-
-                  <Divider style={{ marginTop: 28, marginBottom: 28 }} />
-                  <input
-                    id="validation_message"
+                    placeholder="e.g. Enter validation message here"
+                    id="instructions"
                     type="text"
                     className="form-control shadow-none"
-                    defaultValue={this.props.element.validation_messages}
-                    onBlur={this.updateElement.bind(this)}
+                    defaultValue={this.props.element.instructions}
+                    // onBlur={this.updateElement.bind(this)}
                     onChange={this.editElementProp.bind(
                       this,
-                      "validation_messages",
+                      "instructions",
                       "value"
                     )}
                   />
@@ -865,26 +1028,52 @@ export default class FormElementsEdit extends React.Component {
             </p> */}
                 </div>
               )}
-            {this.props.element.sectionFilled["measurement_unit"] === 1 &&
+            {this.state.currentEditing === "measurement_unit" &&
               this.props.element.hasOwnProperty("measurement_unit") && (
                 <div className="form-group" style={{ marginTop: 10 }}>
-                  <label
+                  <div
                     style={{
-                      fontSize: 16,
-                      fontWeight: 500,
-                      color: "#2A2C30",
+                      paddingBottom: 28,
+                      borderBottom: "1px dashed #BCBCBC",
+                      marginBottom: 28,
                     }}
-                    className="control-label"
-                    htmlFor="measurement_unit"
                   >
-                    <IntlMessages id="Measurement unit" />:
-                  </label>
+                    <label
+                      style={{
+                        color: "#2A2C30",
+                        fontSize: 16,
+                        fontWeight: 500,
+                        lineHeight: "normal",
+                        textAlign: "center",
+                      }}
+                    >
+                      <IntlMessages id="Measurement unit" />
+                    </label>
+                    <div
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 400,
+                        color: "#46494F",
+                        marginTop: 16,
+                      }}
+                    >
+                      This field defines what units should be used when filling
+                      in this field. e.g. cm for height, mmHG for blood pressure
+                      etc.
+                    </div>
+                  </div>
                   <input
+                    style={{
+                      borderRadius: 6,
+                      border: "1px solid #BCBCBC",
+                      backgroundColor: "#FFF",
+                    }}
+                    placeholder="e.g. cm"
                     id="measurement_unit"
                     type="text"
                     className="form-control shadow-none"
                     defaultValue={this.props.element.measurement_unit}
-                    onBlur={this.updateElement.bind(this)}
+                    // onBlur={this.updateElement.bind(this)}
                     onChange={this.editElementProp.bind(
                       this,
                       "measurement_unit",
@@ -893,82 +1082,157 @@ export default class FormElementsEdit extends React.Component {
                   />
                 </div>
               )}
-            {this.props.element.sectionFilled["limit"] === 1 && (
-              <>
-                {/* <FormGroup>
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        id="enforce_decimal"
-                        type="checkbox"
-                        checked={this.props.element.enforce_decimal}
+            {this.state.currentEditing === "limit" && (
+              <div className="form-group" style={{ marginTop: 10 }}>
+                <div
+                  style={{
+                    paddingBottom: 28,
+                    borderBottom: "1px dashed #BCBCBC",
+                    marginBottom: 28,
+                  }}
+                >
+                  <label
+                    style={{
+                      color: "#2A2C30",
+                      fontSize: 16,
+                      fontWeight: 500,
+                      lineHeight: "normal",
+                      textAlign: "center",
+                    }}
+                  >
+                    <IntlMessages id="Lower Limit" />
+                  </label>
+
+                  <div
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 400,
+                      color: "#46494F",
+                      maxWidth: 500,
+                      marginTop: 16,
+                    }}
+                  >
+                    Define the lowest and highest value this field can have.
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 400,
+                      color: "#46494F",
+                      marginTop: 16,
+                    }}
+                  >
+                    The above limit will generate errors (when exceeded), which
+                    cannot be overruled.
+                  </div>
+                </div>
+                <FormControl className="w-100">
+                  <RadioGroup
+                    row
+                    aria-labelledby="demo-row-radio-buttons-group-label"
+                    name="row-radio-buttons-group"
+                    className="d-flex"
+                    style={{ gap: 100 }}
+                  >
+                    <FormControlLabel
+                      value="enable"
+                      control={
+                        <Radio
+                          onChange={this.editElementProp.bind(
+                            this,
+                            "limit",
+                            "value"
+                          )}
+                          checked={this.props.element.limit === "enable"}
+                          color="primary"
+                        />
+                      }
+                      label="Enable"
+                    />
+                    <FormControlLabel
+                      value="disable"
+                      control={
+                        <Radio
+                          onChange={this.editElementProp.bind(
+                            this,
+                            "limit",
+                            "value"
+                          )}
+                          checked={this.props.element.limit === "disable"}
+                          color="primary"
+                        />
+                      }
+                      label="Disable"
+                    />
+                  </RadioGroup>
+                </FormControl>
+                {this.props.element.limit === "enable" && (
+                  <div>
+                    <div className="form-group" style={{ marginTop: 10 }}>
+                      <label
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 400,
+                          color: "#46494F",
+                        }}
+                        className="control-label"
+                        htmlFor="lower_limit"
+                      >
+                        <IntlMessages id="Lower limit" />
+                      </label>
+                      <input
+                        style={{
+                          borderRadius: 6,
+                          border: "1px solid #BCBCBC",
+                          backgroundColor: "#FFF",
+                        }}
+                        id="lower_limit"
+                        type="number"
+                        placeholder="e.g. 6"
+                        className="form-control shadow-none"
+                        defaultValue={this.props.element.lower_limit}
+                        // onBlur={this.updateElement.bind(this)}
                         onChange={this.editElementProp.bind(
                           this,
-                          "enforce_decimal",
-                          "checked"
+                          "lower_limit",
+                          "value"
                         )}
-                        color="primary"
-                        className="shadow-none"
                       />
-                    }
-                    label="Enforce decimal"
-                  />
-                </FormGroup> */}
-                {this.props.element.hasOwnProperty("lower_limit") && (
-                  <div className="form-group" style={{ marginTop: 10 }}>
-                    <label
-                      style={{
-                        fontSize: 16,
-                        fontWeight: 500,
-                        color: "#2A2C30",
-                      }}
-                      className="control-label"
-                      htmlFor="lower_limit"
-                    >
-                      <IntlMessages id="Lower limit" />:
-                    </label>
-                    <input
-                      id="lower_limit"
-                      type="number"
-                      className="form-control shadow-none"
-                      defaultValue={this.props.element.lower_limit}
-                      onBlur={this.updateElement.bind(this)}
-                      onChange={this.editElementProp.bind(
-                        this,
-                        "lower_limit",
-                        "value"
-                      )}
-                    />
+                    </div>
+                    <div className="form-group" style={{ marginTop: 10 }}>
+                      <label
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 400,
+                          color: "#46494F",
+                        }}
+                        className="control-label"
+                        htmlFor="upper_limit"
+                      >
+                        <IntlMessages id="Upper limit" />
+                      </label>
+                      <input
+                        style={{
+                          borderRadius: 6,
+                          border: "1px solid #BCBCBC",
+                          backgroundColor: "#FFF",
+                        }}
+                        id="upper_limit"
+                        type="number"
+                        placeholder="e.g. 20"
+                        className="form-control shadow-none"
+                        defaultValue={this.props.element.upper_limit}
+                        // onBlur={this.updateElement.bind(this)}
+                        onChange={this.editElementProp.bind(
+                          this,
+                          "upper_limit",
+                          "value"
+                        )}
+                      />
+                    </div>
                   </div>
                 )}
-                {this.props.element.hasOwnProperty("upper_limit") && (
-                  <div className="form-group" style={{ marginTop: 10 }}>
-                    <label
-                      style={{
-                        fontSize: 16,
-                        fontWeight: 500,
-                        color: "#2A2C30",
-                      }}
-                      className="control-label"
-                      htmlFor="upper_limit"
-                    >
-                      <IntlMessages id="Upper limit" />:
-                    </label>
-                    <input
-                      id="upper_limit"
-                      type="number"
-                      className="form-control shadow-none"
-                      defaultValue={this.props.element.upper_limit}
-                      onBlur={this.updateElement.bind(this)}
-                      onChange={this.editElementProp.bind(
-                        this,
-                        "upper_limit",
-                        "value"
-                      )}
-                    />
-                  </div>
-                )}
-              </>
+              </div>
             )}
             {this.state.element.element === "FileUpload" && (
               <div>
@@ -1044,7 +1308,7 @@ export default class FormElementsEdit extends React.Component {
               <div />
             )}
 
-            {this.props.element.sectionFilled["dependencies"] === 1 && (
+            {this.state.currentEditing === "export_field" && (
               <>
                 {canHavePageBreakBefore && (
                   <div className="form-group">
@@ -1326,285 +1590,6 @@ export default class FormElementsEdit extends React.Component {
                 element={this.props.element}
                 key={this.props.element.options.length}
               />
-            )}
-
-            {this.state.currentEditingIndex === 0 && (
-              <div
-                className="d-flex justify-content-end"
-                style={{ marginTop: 10 }}
-              >
-                <div className="d-flex" style={{ gap: 20 }}>
-                  <button
-                    style={{
-                      display: "flex",
-                      padding: "8px 10px",
-                      flexDirection: "column",
-                      borderRadius: 6,
-                      border: "1px solid #BCBCBC",
-                      background: "#FFF",
-                    }}
-                    onClick={() => {
-                      this.updatedSelectFilled(
-                        Object.keys(this.props.element.sectionFilled)[
-                          this.state.currentEditingIndex
-                        ],
-                        2,
-                        Object.keys(this.props.element.sectionFilled)[
-                          this.state.currentEditingIndex + 1
-                        ],
-                        1
-                      );
-                      this.selectSection(
-                        Object.keys(this.props.element.sectionFilled)[
-                          this.state.currentEditingIndex + 1
-                        ]
-                      );
-                    }}
-                  >
-                    Skip
-                  </button>
-                  <button
-                    style={{
-                      padding: "8px 10px",
-                      gap: 10,
-                      borderRadius: 6,
-                      color: "#FFF",
-                      backgroundColor: "#0D487B",
-                      border: "none",
-                    }}
-                    className="d-flex"
-                    onClick={() => {
-                      this.updatedSelectFilled(
-                        Object.keys(this.props.element.sectionFilled)[
-                          this.state.currentEditingIndex
-                        ],
-                        3,
-                        Object.keys(this.props.element.sectionFilled)[
-                          this.state.currentEditingIndex + 1
-                        ],
-                        1
-                      );
-                      this.selectSection(
-                        Object.keys(this.props.element.sectionFilled)[
-                          this.state.currentEditingIndex + 1
-                        ]
-                      );
-                    }}
-                  >
-                    <div>Save & Next</div>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="17"
-                      viewBox="0 0 16 17"
-                      fill="none"
-                    >
-                      <path
-                        d="M10.7811 7.83327L7.20509 4.25726L8.14789 3.31445L13.3334 8.49993L8.14789 13.6853L7.20509 12.7425L10.7811 9.1666H2.66669V7.83327H10.7811Z"
-                        fill="white"
-                      />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            )}
-            {this.state.currentEditingIndex < 9 &&
-              this.state.currentEditingIndex > 0 && (
-                <div
-                  className="d-flex justify-content-between"
-                  style={{ marginTop: 10 }}
-                >
-                  <div>
-                    <button
-                      style={{
-                        padding: "8px 10px",
-                        gap: 10,
-                        borderRadius: 6,
-                        border: "1px solid #BCBCBC",
-                        background: "#FFF",
-                      }}
-                      className="d-flex"
-                      onClick={() => {
-                        this.updatedSelectFilled(
-                          Object.keys(this.props.element.sectionFilled)[
-                            this.state.currentEditingIndex
-                          ],
-                          2,
-                          Object.keys(this.props.element.sectionFilled)[
-                            this.state.currentEditingIndex + 1
-                          ],
-                          1
-                        );
-                        this.selectSection(
-                          Object.keys(this.props.element.sectionFilled)[
-                            this.state.currentEditingIndex + 1
-                          ]
-                        );
-                      }}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="17"
-                        viewBox="0 0 16 17"
-                        fill="none"
-                      >
-                        <path
-                          d="M5.21891 9.16673L8.79491 12.7427L7.85211 13.6855L2.66665 8.50007L7.85211 3.31467L8.79491 4.25747L5.21891 7.8334L13.3333 7.8334V9.16673H5.21891Z"
-                          fill="#2A2C30"
-                        />
-                      </svg>
-                      <div>Back</div>
-                    </button>
-                  </div>
-                  <div className="d-flex" style={{ gap: 20 }}>
-                    <button
-                      style={{
-                        display: "flex",
-                        padding: "8px 10px",
-                        flexDirection: "column",
-                        borderRadius: 6,
-                        border: "1px solid #BCBCBC",
-                        background: "#FFF",
-                      }}
-                      onClick={() => {
-                        this.updatedSelectFilled(
-                          Object.keys(this.props.element.sectionFilled)[
-                            this.state.currentEditingIndex
-                          ],
-                          2,
-                          Object.keys(this.props.element.sectionFilled)[
-                            this.state.currentEditingIndex + 1
-                          ],
-                          1
-                        );
-                        this.selectSection(
-                          Object.keys(this.props.element.sectionFilled)[
-                            this.state.currentEditingIndex + 1
-                          ]
-                        );
-                      }}
-                    >
-                      Skip
-                    </button>
-                    <button
-                      style={{
-                        padding: "8px 10px",
-                        gap: 10,
-                        borderRadius: 6,
-                        color: "#FFF",
-                        backgroundColor: "#0D487B",
-                        border: "none",
-                      }}
-                      className="d-flex"
-                      onClick={() => {
-                        this.updatedSelectFilled(
-                          Object.keys(this.props.element.sectionFilled)[
-                            this.state.currentEditingIndex
-                          ],
-                          3,
-                          Object.keys(this.props.element.sectionFilled)[
-                            this.state.currentEditingIndex + 1
-                          ],
-                          1
-                        );
-                        this.selectSection(
-                          Object.keys(this.props.element.sectionFilled)[
-                            this.state.currentEditingIndex + 1
-                          ]
-                        );
-                      }}
-                    >
-                      <div>Save & Next</div>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="17"
-                        viewBox="0 0 16 17"
-                        fill="none"
-                      >
-                        <path
-                          d="M10.7811 7.83327L7.20509 4.25726L8.14789 3.31445L13.3334 8.49993L8.14789 13.6853L7.20509 12.7425L10.7811 9.1666H2.66669V7.83327H10.7811Z"
-                          fill="white"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              )}
-
-            {this.state.currentEditingIndex === 9 && (
-              <div
-                className="d-flex justify-content-between"
-                style={{ gap: 20, marginTop: 10 }}
-              >
-                <button
-                  style={{
-                    padding: "8px 10px",
-                    gap: 10,
-                    borderRadius: 6,
-                    border: "1px solid #BCBCBC",
-                    background: "#FFF",
-                  }}
-                  className="d-flex"
-                  onClick={() => {
-                    this.updatedSelectFilled(
-                      Object.keys(this.props.element.sectionFilled)[
-                        this.state.currentEditingIndex
-                      ],
-                      2,
-                      Object.keys(this.props.element.sectionFilled)[
-                        this.state.currentEditingIndex + 1
-                      ],
-                      1
-                    );
-                    this.selectSection(
-                      Object.keys(this.props.element.sectionFilled)[
-                        this.state.currentEditingIndex + 1
-                      ]
-                    );
-                  }}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="17"
-                    viewBox="0 0 16 17"
-                    fill="none"
-                  >
-                    <path
-                      d="M5.21891 9.16673L8.79491 12.7427L7.85211 13.6855L2.66665 8.50007L7.85211 3.31467L8.79491 4.25747L5.21891 7.8334L13.3333 7.8334V9.16673H5.21891Z"
-                      fill="#2A2C30"
-                    />
-                  </svg>
-                  <div>Back</div>
-                </button>
-                <button
-                  style={{
-                    padding: "8px 10px",
-                    gap: 10,
-                    borderRadius: 6,
-                    color: "#FFF",
-                    backgroundColor: "#0D487B",
-                    border: "none",
-                  }}
-                  className="d-flex"
-                >
-                  <div>Save</div>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="17"
-                    viewBox="0 0 16 17"
-                    fill="none"
-                  >
-                    <path
-                      d="M10.7811 7.83327L7.20509 4.25726L8.14789 3.31445L13.3334 8.49993L8.14789 13.6853L7.20509 12.7425L10.7811 9.1666H2.66669V7.83327H10.7811Z"
-                      fill="white"
-                    />
-                  </svg>
-                </button>
-              </div>
             )}
           </div>
         </div>

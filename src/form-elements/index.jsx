@@ -305,7 +305,15 @@ class NumberInput extends React.Component {
     }
 
     return (
-      <div style={{ ...this.props.style }} className={baseClasses}>
+      <div
+        id="numberInputPreview"
+        style={{ ...this.props.style }}
+        className={baseClasses}
+        onClick={(e) => {
+          if (e.target.id === "numberInputPreview")
+            this.props.editModeOn(this.props.data, e);
+        }}
+      >
         <ComponentHeader {...this.props} />
         <div className="form-group" style={{ marginTop: 24 }}>
           {/* <ComponentLabel {...this.props} /> */}

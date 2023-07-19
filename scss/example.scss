@@ -2,10 +2,16 @@
 
 .draglist{
     border-color: black;
+    display: flex;
+    width: 180px;
+    padding: 4px 0px !important;
+    align-items: center;
+    border-radius: 6px;
+    border: 1px solid #BCBCBC;
+    cursor:move;
 }
 
 .draglist:hover{
     border-color: darkgrey !important;
-    background-color: gray !important;
-
+    // background-color: gray !important;
 }
